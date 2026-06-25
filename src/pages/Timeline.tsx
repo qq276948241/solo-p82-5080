@@ -1,48 +1,17 @@
-import { useState, useMemo } from 'react';
 import { Plus, Coffee as CoffeeIcon, Filter, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCoffeeStore } from '../store/useCoffeeStore';
+import { useFlavorFilter } from '../hooks/useFlavorFilter';
 import { CoffeeCard } from '../components/CoffeeCard';
 import { FlavorChip } from '../components/FlavorChip';
 
 export function Timeline() {
   const navigate = useNavigate();
   const { records, loading, deleteRecord } = useCoffeeStore();
-  const [selectedFlavors, setSelectedFlavors] = useState<string[]>([]);
+  const { activeTags, availableFlavors, filteredRecords, toggle, clear } = useFlavorFilter(records);
 
   const handleAdd = () => {
     navigate('/add');
-  };
-
-  const availableFlavors = useMemo(() => {
-    const flavorCount: Record<string, number> = {};
-    records.forEach(record => {
-      record.flavors.forEach(flavor => {
-        flavorCount[flavor] = (flavorCount[flavor] || 0) + 1;
-      });
-    });
-    return Object.entries(flavorCount)
-      .sort((a, b) => b[1] - a[1])
-      .map(([flavor]) => flavor);
-  }, [records]);
-
-  const filteredRecords = useMemo(() => {
-    if (selectedFlavors.length === 0) return records;
-    return records.filter(record =>
-      selectedFlavors.every(flavor => record.flavors.includes(flavor))
-    );
-  }, [records, selectedFlavors]);
-
-  const toggleFlavor = (flavor: string) => {
-    setSelectedFlavors(prev =>
-      prev.includes(flavor)
-        ? prev.filter(f => f !== flavor)
-        : [...prev, flavor]
-    );
-  };
-
-  const clearFilters = () => {
-    setSelectedFlavors([]);
   };
 
   if (loading) {
@@ -72,9 +41,9 @@ export function Timeline() {
               <div className="flex items-center gap-2">
                 <Filter size={14} className="text-coffee-light flex-shrink-0" />
                 <span className="text-xs text-coffee-light font-medium">风味筛选</span>
-                {selectedFlavors.length > 0 && (
+                {activeTags.length > 0 && (
                   <button
-                    onClick={clearFilters}
+                    onClick={clear}
                     className="ml-auto flex items-center gap-1 text-xs text-latte-dark hover:text-coffee-dark transition-colors"
                   >
                     <X size={12} />
@@ -87,15 +56,15 @@ export function Timeline() {
                   <FlavorChip
                     key={flavor}
                     flavor={flavor}
-                    selected={selectedFlavors.includes(flavor)}
-                    onClick={() => toggleFlavor(flavor)}
+                    selected={activeTags.includes(flavor)}
+                    onClick={() => toggle(flavor)}
                     filterMode
                   />
                 ))}
               </div>
-              {selectedFlavors.length > 0 && (
+              {activeTags.length > 0 && (
                 <p className="text-xs text-coffee-light/70">
-                  已筛选 {selectedFlavors.length} 种风味 · 匹配 {filteredRecords.length} 条记录
+                  已筛选 {activeTags.length} 种风味 · 匹配 {filteredRecords.length} 条记录
                 </p>
               )}
             </div>
@@ -116,7 +85,7 @@ export function Timeline() {
             <h2 className="font-display text-xl text-coffee-dark">没有匹配的记录</h2>
             <p className="text-coffee-light">尝试减少筛选条件</p>
             <button
-              onClick={clearFilters}
+              onClick={clear}
               className="px-4 py-2 bg-latte text-white rounded-full text-sm font-medium hover:bg-latte-dark transition-colors"
             >
               清除筛选
