@@ -3,6 +3,7 @@ interface FlavorChipProps {
   selected?: boolean;
   onClick?: () => void;
   readonly?: boolean;
+  filterMode?: boolean;
 }
 
 const flavorColors: Record<string, string> = {
@@ -33,9 +34,17 @@ const flavorColors: Record<string, string> = {
   '白花': 'bg-gray-100 text-gray-600 border-gray-200',
 };
 
-export function FlavorChip({ flavor, selected = false, onClick, readonly = false }: FlavorChipProps) {
+export function FlavorChip({ flavor, selected = false, onClick, readonly = false, filterMode = false }: FlavorChipProps) {
   const baseColor = flavorColors[flavor] || 'bg-latte-light/50 text-coffee-dark border-latte';
   
+  const selectedStyle = filterMode
+    ? 'bg-latte text-white border-latte shadow-sm animate-bounce-in'
+    : `${baseColor} animate-bounce-in`;
+
+  const unselectedStyle = filterMode
+    ? 'bg-white text-coffee-light border-coffee-light/30 hover:border-latte hover:text-coffee-medium hover:bg-white'
+    : 'bg-white/50 text-coffee-light/70 border-coffee-light/20 hover:bg-white';
+
   return (
     <button
       type="button"
@@ -44,10 +53,7 @@ export function FlavorChip({ flavor, selected = false, onClick, readonly = false
       className={`
         px-3 py-1 rounded-full text-xs font-medium border transition-all duration-200
         ${readonly ? 'cursor-default' : 'cursor-pointer hover:scale-105'}
-        ${selected 
-          ? `${baseColor} animate-bounce-in` 
-          : 'bg-white/50 text-coffee-light/70 border-coffee-light/20 hover:bg-white'
-        }
+        ${selected ? selectedStyle : unselectedStyle}
       `}
     >
       {flavor}
