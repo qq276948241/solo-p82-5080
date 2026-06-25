@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { Plus, Coffee as CoffeeIcon, Filter, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCoffeeStore } from '../store/useCoffeeStore';
@@ -10,9 +11,13 @@ export function Timeline() {
   const { records, loading, deleteRecord } = useCoffeeStore();
   const { activeTags, availableFlavors, filteredRecords, toggle, clear } = useFlavorFilter(records);
 
-  const handleAdd = () => {
+  const handleAdd = useCallback(() => {
     navigate('/add');
-  };
+  }, [navigate]);
+
+  const handleToggleFlavor = useCallback((flavor: string) => {
+    toggle(flavor);
+  }, [toggle]);
 
   if (loading) {
     return (
@@ -57,7 +62,7 @@ export function Timeline() {
                     key={flavor}
                     flavor={flavor}
                     selected={activeTags.includes(flavor)}
-                    onClick={() => toggle(flavor)}
+                    onClick={handleToggleFlavor}
                     filterMode
                   />
                 ))}

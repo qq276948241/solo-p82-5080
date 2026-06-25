@@ -1,7 +1,9 @@
+import { memo, useCallback } from 'react';
+
 interface FlavorChipProps {
   flavor: string;
   selected?: boolean;
-  onClick?: () => void;
+  onClick?: (flavor: string) => void;
   readonly?: boolean;
   filterMode?: boolean;
 }
@@ -34,7 +36,10 @@ const flavorColors: Record<string, string> = {
   '白花': 'bg-gray-100 text-gray-600 border-gray-200',
 };
 
-export function FlavorChip({ flavor, selected = false, onClick, readonly = false, filterMode = false }: FlavorChipProps) {
+export const FlavorChip = memo(function FlavorChip({ flavor, selected = false, onClick, readonly = false, filterMode = false }: FlavorChipProps) {
+  const handleClick = useCallback(() => {
+    onClick?.(flavor);
+  }, [onClick, flavor]);
   const baseColor = flavorColors[flavor] || 'bg-latte-light/50 text-coffee-dark border-latte';
   
   const selectedStyle = filterMode
@@ -48,7 +53,7 @@ export function FlavorChip({ flavor, selected = false, onClick, readonly = false
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={handleClick}
       disabled={readonly}
       className={`
         px-3 py-1 rounded-full text-xs font-medium border transition-all duration-200
@@ -59,4 +64,4 @@ export function FlavorChip({ flavor, selected = false, onClick, readonly = false
       {flavor}
     </button>
   );
-}
+});

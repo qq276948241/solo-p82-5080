@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import type { CoffeeRecord } from '../types';
 
 interface UseFlavorFilterResult {
@@ -31,17 +31,17 @@ export function useFlavorFilter(records: CoffeeRecord[]): UseFlavorFilterResult 
     );
   }, [records, activeTags]);
 
-  const toggle = (flavor: string) => {
+  const toggle = useCallback((flavor: string) => {
     setActiveTags(prev =>
       prev.includes(flavor)
         ? prev.filter(f => f !== flavor)
         : [...prev, flavor]
     );
-  };
+  }, []);
 
-  const clear = () => {
+  const clear = useCallback(() => {
     setActiveTags([]);
-  };
+  }, []);
 
   return { activeTags, availableFlavors, filteredRecords, toggle, clear };
 }
